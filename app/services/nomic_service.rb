@@ -9,12 +9,12 @@ class NomicService
   }
 
   class << self
-    def get_currencies(action, params)
+    def get_currencies(action, params = {})
       ids_query = if params[:ids] == 'All'
         "BTC,ETH,XRP"
       elsif params[:ids].class.name == 'String'
         params[:ids]
-      else 
+      elsif params[:ids].present?
         params[:ids].join(',')
       end
 
@@ -44,6 +44,20 @@ class NomicService
         verify: true
       }
       HTTParty.get(url, options)
+    end
+
+    def get_comparison(btc_value, eth_value, xrp_value)
+      {
+        "BTC_VALUE": {
+          "1BTC": ["#{(btc_value / eth_value).round(8)} ETH", "#{(btc_value / xrp_value).round(8)} XRP"]
+        },
+        "ETH_VALUE": {
+          "1ETH": ["#{(eth_value / btc_value).round(8)} BTC", "#{(eth_value / xrp_value).round(8)} XRP"]
+        },
+        "XRP_VALUE": {
+          "1XRP": ["#{(xrp_value / btc_value).round(8)} BTC", "1XRP": "#{(xrp_value / eth_value).round(8)} ETH"]
+        }
+      }
     end
   end
 end
